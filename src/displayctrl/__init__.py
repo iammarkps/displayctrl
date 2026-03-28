@@ -23,6 +23,7 @@ cg.CGSConfigureDisplayEnabled.restype = c_int
 
 
 STATEFILE = Path.home() / ".displayctrl_disabled.json"
+kCGConfigurePermanently = 2
 
 
 def get_external_displays():
@@ -65,7 +66,7 @@ def set_displays_enabled(display_ids: list[int], enabled: bool) -> dict[int, boo
     if not any(results.values()):
         cg.CGCancelDisplayConfiguration(config_ref)
         return results
-    cg.CGCompleteDisplayConfiguration(config_ref, 0)
+    cg.CGCompleteDisplayConfiguration(config_ref, kCGConfigurePermanently)
     return results
 
 

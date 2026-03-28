@@ -16,3 +16,4 @@
 - `CGGetOnlineDisplayList` also does NOT return displays disabled via `CGSConfigureDisplayEnabled` — don't rely on it for re-enabling
 - Because no CG API enumerates disabled displays, we persist display IDs to `~/.displayctrl_disabled.json` on disable and read them back on enable
 - Display IDs for Thunderbolt docks can be any value (not just small integers) — never brute-force ID ranges
+- `CGCompleteDisplayConfiguration` must use `kCGConfigurePermanently` (mode 2), not `kCGConfigureForSession` (mode 0) — mode 0 silently no-ops when re-enabling displays that have been removed from the online list
