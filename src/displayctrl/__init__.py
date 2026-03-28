@@ -1,7 +1,9 @@
 """Toggle external displays on/off using CoreGraphics."""
 
+import json
 import sys
 from ctypes import CDLL, POINTER, byref, c_bool, c_int, c_uint32, c_void_p, util
+from pathlib import Path
 
 
 cg = CDLL(util.find_library("CoreGraphics"))
@@ -20,8 +22,11 @@ cg.CGSConfigureDisplayEnabled.argtypes = [c_void_p, c_uint32, c_bool]
 cg.CGSConfigureDisplayEnabled.restype = c_int
 
 
+STATEFILE = Path.home() / ".displayctrl_disabled.json"
+
+
 def get_external_displays():
-    """Return contextual IDs of active external displays."""
+    """Return IDs of active external displays."""
     max_displays = 16
     display_ids = (c_uint32 * max_displays)()
     display_count = c_uint32(0)
@@ -32,6 +37,21 @@ def get_external_displays():
         for i in range(display_count.value)
         if not cg.CGDisplayIsBuiltin(display_ids[i])
     ]
+
+
+def save_disabled_ids(display_ids: list[int]):
+    STATEFILE.write_text(json.dumps(display_ids))
+
+
+def load_disabled_ids() -> list[int]:
+    try:
+        return json.loads(STATEFILE.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+def clear_disabled_ids():
+    STATEFILE.unlink(missing_ok=True)
 
 
 def set_displays_enabled(display_ids: list[int], enabled: bool) -> dict[int, bool]:
@@ -51,10 +71,15 @@ def set_displays_enabled(display_ids: list[int], enabled: bool) -> dict[int, boo
 
 def toggle_displays(enable: bool):
     if enable:
-        # Disabled displays don't appear in active list,
-        # so brute-force IDs 1-10 when enabling
-        set_displays_enabled(list(range(1, 11)), True)
-        print("Enabled all displays.")
+        displays = load_disabled_ids()
+        if not displays:
+            print("No saved display IDs found. Nothing to enable.")
+            return
+        results = set_displays_enabled(displays, True)
+        for display_id, ok in results.items():
+            status = "OK" if ok else "FAILED"
+            print(f"Enabling display {display_id}: {status}")
+        clear_disabled_ids()
         return
 
     displays = get_external_displays()
@@ -62,6 +87,7 @@ def toggle_displays(enable: bool):
         print("No external displays found.")
         return
 
+    save_disabled_ids(displays)
     results = set_displays_enabled(displays, False)
     for display_id, ok in results.items():
         status = "OK" if ok else "FAILED"
