@@ -1,0 +1,12 @@
+[project]
+name = "displayctrl"
+version = "0.1.0"
+description = "Toggle external displays on/off on macOS"
+requires-python = ">=3.10"
+
+[project.scripts]
+displayctrl = "displayctrl:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
