@@ -6,9 +6,15 @@
 
 ## Dev commands
 
-- Install as tool: `uv tool install .`
+- Install as tool: `uv tool install .` (see caveat below about caching)
 - Dev install: `uv pip install -e .`
 - Run without installing: `uvx --from . displayctrl <enable|disable|list>`
+
+## uv tool install caching
+
+- `uv tool install --force .` does NOT rebuild if the version number (`0.1.0`) hasn't changed — it serves a cached wheel with stale code
+- To install updated source: run `uv cache clean` first, then `uv tool install .`; or `uv tool uninstall displayctrl && uv cache clean && uv tool install .`
+- Always verify the installed code matches source after reinstalling (e.g. grep for a known function)
 
 ## CoreGraphics API notes
 
