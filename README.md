@@ -26,6 +26,14 @@ displayctrl <enable|disable|list>
 - **`disable`** -- Turn off all external displays.
 - **`enable`** -- Turn on all displays (brute-forces display IDs 1-10 since disabled displays aren't enumerable).
 
+## Raycast
+
+Script commands are included in the `raycast/` directory. To set up:
+
+1. Open Raycast Settings → Extensions → Script Commands
+2. Click **Add Script Directory** and select the `raycast/` folder
+3. Search "Display" in Raycast to find **Enable External Displays** and **Disable External Displays**
+
 ## Requirements
 
 - macOS
